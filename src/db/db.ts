@@ -10,7 +10,7 @@ import {
   setDoc,
   where,
 } from "firebase/firestore/lite";
-import getCurrentDateInBritain from "../utils/date-utils";
+import { getCurrentDateInBritain } from "../utils/date-utils";
 import { DailyChallenge } from "../types/jingle";
 
 // Initialize Firebase

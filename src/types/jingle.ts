@@ -1,5 +1,3 @@
-import { Geometry } from "geojson";
-
 export enum GameStatus {
   Guessing = "guessing",
   AnswerRevealed = "answer-revealed",

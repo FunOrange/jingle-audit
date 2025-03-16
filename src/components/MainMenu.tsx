@@ -4,7 +4,7 @@ import { getStatistics } from "../db/db";
 import "../style/footer.css";
 import "../style/mainMenu.css";
 import NextDailyCountdown from "./NextDailyCountdown";
-import getCurrentDateInBritain, { getNextUtc4AM } from "../utils/date-utils";
+import { getCurrentDateInBritain, getNextUtc4AM } from "../utils/date-utils";
 import useSWR from "swr";
 import { DailyChallenge } from "../types/jingle";
 

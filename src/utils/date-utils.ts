@@ -26,7 +26,7 @@ export const calculateTimeDifference = (startTime: number, endTime: number) => {
   return formattedTime;
 };
 
-export default function getCurrentDateInBritain() {
+export function getCurrentDateInBritain() {
   // Create a new Date object
   const now = new Date();
 

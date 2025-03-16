@@ -11,9 +11,7 @@ import {
   incrementSongFailureCount,
   incrementSongSuccessCount,
 } from "../db/db";
-import getCurrentDateInBritain, {
-  calculateTimeDifference,
-} from "../utils/date-utils";
+import { getCurrentDateInBritain } from "../utils/date-utils";
 import { sum } from "ramda";
 import HomeButton from "./HomeButton";
 import DailyGuessLabel from "./DailyGuessLabel";
@@ -21,6 +19,7 @@ import Footer from "./Footer";
 import "../style/uiBox.css";
 import { match } from "ts-pattern";
 import ResultMessage from "./ResultMessage";
+import useGameLogic from "../hooks/useGameLogic";
 
 interface DailyChallengeProps {
   dailyChallenge: DailyChallengeType;
@@ -28,14 +27,7 @@ interface DailyChallengeProps {
 export default function DailyChallenge({
   dailyChallenge,
 }: DailyChallengeProps) {
-  const [gameState, setGameState] = useState<GameState>({
-    status: GameStatus.Guessing,
-    round: 0,
-    songs: dailyChallenge.songs,
-    scores: [],
-    startTime: Date.now(),
-    timeTaken: null,
-  });
+  const { gameState, guess, nextSong } = useGameLogic(dailyChallenge);
 
   const audioRef = useRef<HTMLAudioElement>(null);
   const playSong = (songName: string) => {
@@ -46,16 +38,7 @@ export default function DailyChallenge({
   };
 
   const onGuess = (correct: boolean, distance: number) => {
-    const score = Math.round(
-      correct ? 1000 : (1000 * 1) / Math.exp(0.0018 * distance),
-    );
-    const scores = [...gameState.scores, score];
-    setGameState((prev) => ({
-      ...prev,
-      status: GameStatus.AnswerRevealed,
-      scores: scores,
-    }));
-    localStorage.setItem("dailyResults", JSON.stringify(scores));
+    const score = guess(correct, distance);
 
     // update statistics
     incrementGlobalGuessCounter();
@@ -63,30 +46,19 @@ export default function DailyChallenge({
     if (correct) incrementSongSuccessCount(currentSong);
     else incrementSongFailureCount(currentSong);
 
-    // end game
+    localStorage.setItem(
+      "dailyResults",
+      JSON.stringify([...gameState.scores, score]),
+    );
     if (gameState.round === gameState.songs.length) {
-      submitResults();
+      localStorage.setItem("dailyComplete", getCurrentDateInBritain());
+      incrementDailyChallenge(sum(gameState.scores));
     }
   };
 
-  const nextSong = () => {
-    const nextRound = gameState.round + 1;
-    setGameState((prev) => ({
-      ...prev,
-      round: nextRound,
-      status: GameStatus.Guessing,
-    }));
-    playSong(gameState.songs[nextRound]);
-  };
-
-  const submitResults = () => {
-    setGameState((prev) => ({
-      ...prev,
-      timeTaken: calculateTimeDifference(prev.startTime, Date.now()),
-    }));
-    localStorage.setItem("dailyComplete", getCurrentDateInBritain());
-    const totalScore = sum(gameState.scores);
-    incrementDailyChallenge(totalScore);
+  const onNextSongClick = () => {
+    nextSong();
+    playSong(gameState.songs[gameState.round + 1]);
   };
 
   const endGame = () => {
@@ -124,7 +96,7 @@ export default function DailyChallenge({
               )
               .with(GameStatus.AnswerRevealed, () => {
                 if (gameState.round < gameState.songs.length - 1) {
-                  return button("Next Song", nextSong);
+                  return button("Next Song", onNextSongClick);
                 } else {
                   return button("End Game", endGame);
                 }

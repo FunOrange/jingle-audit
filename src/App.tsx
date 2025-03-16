@@ -6,7 +6,7 @@ import MainMenu from "./components/MainMenu";
 import { match } from "ts-pattern";
 import DailyChallenge from "./components/DailyChallenge";
 import useSWR from "swr";
-import getCurrentDateInBritain from "./utils/date-utils";
+import { getCurrentDateInBritain } from "./utils/date-utils";
 import { getDailyChallenge } from "./db/db";
 
 enum Screen {
