@@ -1,7 +1,7 @@
 export function copyResultsToClipboard(
   resultsArray: number[],
-  time: string,
-  percentile: number,
+  time?: string,
+  percentile?: number,
 ) {
   const sum = resultsArray.reduce((acc, result) => acc + Number(result), 0);
   let resultsString = "";

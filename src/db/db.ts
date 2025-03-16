@@ -16,7 +16,7 @@ import getCurrentDateInBritain from "../utils/getCurrentDateinBritain";
 if (!import.meta.env.VITE_FIRESTORE_KEY) {
   throw new Error("Firestore key not found");
 }
-const app = initializeApp(import.meta.env.VITE_FIRESTORE_KEY);
+const app = initializeApp(JSON.parse(import.meta.env.VITE_FIRESTORE_KEY));
 const db = getFirestore(app);
 
 async function getSong(songName: string) {
