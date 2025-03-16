@@ -8,7 +8,7 @@ import DailyJingle from "./components/DailyJingle";
 import useSWR from "swr";
 import { getCurrentDateInBritain } from "./utils/date-utils";
 import { getDailyChallenge } from "./data/db";
-import { keys } from "./data/localstorage";
+import Practice from "./components/Practice";
 
 enum Screen {
   MainMenu = "main-menu",
@@ -35,16 +35,7 @@ function App() {
         .with(Screen.MainMenu, () => (
           <MainMenu
             dailyChallenge={dailyChallenge}
-            onDailyJingleClick={() => {
-              if (
-                localStorage.getItem(keys.dailyComplete) ===
-                getCurrentDateInBritain()
-              ) {
-                setScreen(Screen.DailyJingle);
-              } else {
-                setScreen(Screen.DailyJingle);
-              }
-            }}
+            onDailyJingleClick={() => setScreen(Screen.DailyJingle)}
             onPracticeClick={() => setScreen(Screen.Practice)}
           />
         ))
@@ -53,9 +44,7 @@ function App() {
           () =>
             dailyChallenge && <DailyJingle dailyChallenge={dailyChallenge} />,
         )
-        .with(Screen.Practice, () => (
-          <div className="App background-blur">Practice</div>
-        ))
+        .with(Screen.Practice, () => <Practice />)
         .exhaustive()}
     </div>
   );

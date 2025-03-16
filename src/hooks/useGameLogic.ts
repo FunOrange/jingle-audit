@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { DailyChallenge, GameState, GameStatus } from "../types/jingle";
 import { calculateTimeDifference } from "../utils/date-utils";
-import getJingleNumber from "../utils/getJingleNumber";
-import { keys } from "../data/localstorage";
 import { GeoJsonObject } from "geojson";
 import { LatLng } from "leaflet";
 
@@ -43,12 +41,11 @@ export default function useGameLogic(
     };
     setGameState(newGameState);
 
-    if (gameState.round === gameState.songs.length) {
+    if (gameState.round === gameState.songs.length - 1) {
       newGameState = {
         ...newGameState,
         timeTaken: calculateTimeDifference(gameState.startTime, Date.now()),
       };
-      console.log("timeTaken", newGameState.timeTaken);
       setGameState(newGameState);
     }
 

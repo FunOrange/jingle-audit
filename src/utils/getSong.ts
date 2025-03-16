@@ -25,7 +25,7 @@ export const getRandomSong = () => {
     );
   } while (playedSongs.has(randomSongName));
   updatePlayedSongs(randomSongName!);
-  return randomSongName;
+  return randomSongName!;
 };
 
 export const updatePlayedSongs = (newSongName: string) => {
