@@ -8,6 +8,11 @@ import { match } from "ts-pattern";
 import RoundResult from "./RoundResult";
 import { Guess } from "../hooks/useGameLogic";
 import { getRandomSong } from "../utils/getSong";
+import {
+  incrementGlobalGuessCounter,
+  incrementSongFailureCount,
+  incrementSongSuccessCount,
+} from "../data/db";
 
 export default function Practice() {
   const [gameState, setGameState] = useState<GameState>({
@@ -25,6 +30,13 @@ export default function Practice() {
     const score = Math.round(
       guess.correct ? 1000 : (1000 * 1) / Math.exp(0.0018 * guess.distance),
     );
+
+    // update statistics
+    incrementGlobalGuessCounter();
+    const currentSong = gameState.songs[gameState.round];
+    if (guess.correct) incrementSongSuccessCount(currentSong);
+    else incrementSongFailureCount(currentSong);
+
     setGameState((prev) => ({
       ...prev,
       status: GameStatus.AnswerRevealed,
