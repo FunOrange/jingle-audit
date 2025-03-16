@@ -23,7 +23,7 @@ const NextDailyCountdown = ({ end }: CountdownProps) => {
             height="20"
             patternUnits="userSpaceOnUse"
             patternTransform="translate(0 0) scale(40) rotate(0)"
-            shape-rendering="crispEdges"
+            shapeRendering="crispEdges"
           >
             <rect width="1" height="1" x="7" y="1" fill="#edfd07"></rect>
             <rect width="1" height="1" x="8" y="1" fill="#edfd07"></rect>

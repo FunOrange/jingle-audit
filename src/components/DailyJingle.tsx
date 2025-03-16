@@ -1,16 +1,12 @@
-import { useRef, useState } from "react";
-import {
-  DailyChallenge as DailyChallengeType,
-  GameState,
-  GameStatus,
-} from "../types/jingle";
+import { useRef } from "react";
+import { DailyChallenge, GameStatus } from "../types/jingle";
 import RunescapeMap from "./RunescapeMap";
 import {
   incrementDailyChallenge,
   incrementGlobalGuessCounter,
   incrementSongFailureCount,
   incrementSongSuccessCount,
-} from "../db/db";
+} from "../data/db";
 import { getCurrentDateInBritain } from "../utils/date-utils";
 import { sum } from "ramda";
 import HomeButton from "./HomeButton";
@@ -18,16 +14,20 @@ import DailyGuessLabel from "./DailyGuessLabel";
 import Footer from "./Footer";
 import "../style/uiBox.css";
 import { match } from "ts-pattern";
-import ResultMessage from "./ResultMessage";
-import useGameLogic from "../hooks/useGameLogic";
+import RoundResult from "./RoundResult";
+import useGameLogic, { Guess } from "../hooks/useGameLogic";
+import { copyResultsToClipboard } from "../utils/copyResultsToClipboard";
+import GameOver from "./GameOver";
+import getJingleNumber from "../utils/getJingleNumber";
+import { keys } from "../data/localstorage";
 
-interface DailyChallengeProps {
-  dailyChallenge: DailyChallengeType;
+interface DailyJingleProps {
+  dailyChallenge: DailyChallenge;
 }
-export default function DailyChallenge({
-  dailyChallenge,
-}: DailyChallengeProps) {
-  const { gameState, guess, nextSong } = useGameLogic(dailyChallenge);
+export default function DailyJingle({ dailyChallenge }: DailyJingleProps) {
+  const jingleNumber = getJingleNumber(dailyChallenge);
+  const jingle = useGameLogic(dailyChallenge);
+  const gameState = jingle.gameState;
 
   const audioRef = useRef<HTMLAudioElement>(null);
   const playSong = (songName: string) => {
@@ -37,35 +37,31 @@ export default function DailyChallenge({
     audioRef.current!.play();
   };
 
-  const onGuess = (correct: boolean, distance: number) => {
-    const score = guess(correct, distance);
+  const guess = (guess: Guess) => {
+    const gameState = jingle.guess(guess);
 
     // update statistics
     incrementGlobalGuessCounter();
     const currentSong = gameState.songs[gameState.round];
-    if (correct) incrementSongSuccessCount(currentSong);
+    if (guess.correct) incrementSongSuccessCount(currentSong);
     else incrementSongFailureCount(currentSong);
 
     localStorage.setItem(
-      "dailyResults",
-      JSON.stringify([...gameState.scores, score]),
+      keys.gameState(jingleNumber),
+      JSON.stringify(gameState),
     );
     if (gameState.round === gameState.songs.length) {
-      localStorage.setItem("dailyComplete", getCurrentDateInBritain());
+      localStorage.setItem(keys.dailyComplete, getCurrentDateInBritain());
       incrementDailyChallenge(sum(gameState.scores));
     }
   };
 
-  const onNextSongClick = () => {
-    nextSong();
+  const nextSong = () => {
+    jingle.nextSong();
     playSong(gameState.songs[gameState.round + 1]);
   };
 
-  const endGame = () => {
-    throw new Error("Not implemented");
-  };
-
-  const button = (label: string, onClick?: () => void) => (
+  const button = (label: string, onClick?: () => any) => (
     <div
       className="guess-btn-container"
       onClick={onClick}
@@ -96,11 +92,14 @@ export default function DailyChallenge({
               )
               .with(GameStatus.AnswerRevealed, () => {
                 if (gameState.round < gameState.songs.length - 1) {
-                  return button("Next Song", onNextSongClick);
+                  return button("Next Song", nextSong);
                 } else {
-                  return button("End Game", endGame);
+                  return button("End Game", jingle.endGame);
                 }
               })
+              .with(GameStatus.GameOver, () =>
+                button("Copy Results", () => copyResultsToClipboard(gameState)),
+              )
               .exhaustive()}
 
             <audio controls id="audio" ref={audioRef} />
@@ -110,9 +109,13 @@ export default function DailyChallenge({
         </div>
       </div>
 
-      <RunescapeMap gameState={gameState} onGuess={onGuess} />
+      <RunescapeMap gameState={gameState} onGuess={guess} />
 
-      <ResultMessage gameState={gameState} />
+      <RoundResult gameState={gameState} />
+
+      {gameState.status === GameStatus.GameOver && (
+        <GameOver gameState={gameState} dailyChallenge={dailyChallenge} />
+      )}
     </>
   );
 }

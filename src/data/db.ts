@@ -77,11 +77,11 @@ export async function getDailyChallengeResults() {
   return dailyChallengeResults;
 }
 export function calculateDailyChallengePercentile(
-  dailyChallengeResults: number[],
-  result: number,
+  dailyChallenge: Pick<DailyChallenge, "results">,
+  score: number,
 ) {
-  const sortedResults = dailyChallengeResults.sort((a, b) => a - b);
-  const resultIndex = sortedResults.findIndex((value) => value >= result);
+  const sortedResults = dailyChallenge.results.sort((a, b) => a - b);
+  const resultIndex = sortedResults.findIndex((value) => value >= score);
   const percentileOpposite = (resultIndex / sortedResults.length) * 100;
   const percentile = 100 - percentileOpposite;
   return percentile;

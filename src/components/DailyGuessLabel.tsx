@@ -1,5 +1,3 @@
-import { mediaHostUrl } from "../data/hostUrl";
-
 interface DailyGuessLabelProps {
   number?: number;
   opacity?: number;
@@ -7,7 +5,7 @@ interface DailyGuessLabelProps {
 const DailyGuessLabel = ({ number, opacity }: DailyGuessLabelProps) => {
   return (
     <div style={{ position: "relative", opacity: opacity }}>
-      <img src={`${mediaHostUrl}/osrsButton.png`} alt="OSRS Button" />
+      <img src="https://mahloola.com/osrsButton.png" alt="OSRS Button" />
       <div
         style={{
           position: "absolute",

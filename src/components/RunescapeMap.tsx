@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useRef } from "react";
 import L, { CRS, Icon } from "leaflet";
 import markerIconPng from "leaflet/dist/images/marker-icon.png";
 import "leaflet/dist/leaflet.css";
@@ -16,12 +16,13 @@ import { toOurPixelCoordinates } from "../utils/coordinate-utils";
 import { GameState, GameStatus } from "../types/jingle";
 import { Point } from "../types/geometry";
 import { GeoJsonObject } from "geojson";
+import { Guess } from "../hooks/useGameLogic";
 
 const outerBounds = new L.LatLngBounds(L.latLng(-78, 0), L.latLng(0, 136.696));
 
 interface RunescapeMapProps {
   gameState: GameState;
-  onGuess: (correct: boolean, distance: number) => void;
+  onGuess: (guess: Guess) => void;
   className?: string;
 }
 
@@ -50,17 +51,11 @@ export default function RunescapeMapWrapper({
 }
 
 function RunescapeMap({ gameState, onGuess }: RunescapeMapProps) {
-  const [guessedPosition, setGuessedPosition] = useState<L.LatLng | null>(null);
-  const [correctPolygon, setCorrectPolygon] = useState<GeoJsonObject | null>(
-    null,
-  );
   const currentSong = gameState.songs[gameState.round];
 
   const map = useMapEvents({
     click: async (e) => {
       if (gameState.status !== GameStatus.Guessing) return;
-
-      setGuessedPosition(e.latlng);
 
       const zoom = map.getMaxZoom();
       const { x, y } = map.project(e.latlng, zoom);
@@ -84,20 +79,6 @@ function RunescapeMap({ gameState, onGuess }: RunescapeMapProps) {
         featureMatchesSong(currentSong),
       )!;
 
-      if (correctClickedFeature) {
-        onGuess(true, 0);
-      } else {
-        const correctPolygonCenterPoints =
-          correctFeature.geometry.coordinates.map((polygon) =>
-            getCenterOfPolygon(polygon.map(toOurPixelCoordinates)),
-          );
-        const distances = correctPolygonCenterPoints.map((point) =>
-          calculateDistance(ourPixelCoordsClickedPoint, point as Point),
-        );
-        const closestDistance = Math.min(...distances);
-        onGuess(false, closestDistance);
-      }
-
       // Create a GeoJSON feature for the nearest correct polygon
       const correctPolygon = correctFeature.geometry.coordinates.sort(
         (polygon1, polygon2) => {
@@ -112,13 +93,37 @@ function RunescapeMap({ gameState, onGuess }: RunescapeMapProps) {
         .map(toOurPixelCoordinates) // 2. our pixel coords
         .map((coordinate) => map.unproject(coordinate, zoom)) // 3. leaflet { latlng }
         .map(({ lat, lng }) => [lng, lat]); // 4. leaflet [ latlng ]
-      setCorrectPolygon({
+      const correctPolygonData = {
         type: "Feature",
         geometry: {
           type: "Polygon",
           coordinates: [convertedCoordinates],
         },
-      } as GeoJsonObject);
+      } as GeoJsonObject;
+
+      if (correctClickedFeature) {
+        onGuess({
+          correct: true,
+          distance: 0,
+          guessedPosition: e.latlng,
+          correctPolygon: correctPolygonData,
+        });
+      } else {
+        const correctPolygonCenterPoints =
+          correctFeature.geometry.coordinates.map((polygon) =>
+            getCenterOfPolygon(polygon.map(toOurPixelCoordinates)),
+          );
+        const distances = correctPolygonCenterPoints.map((point) =>
+          calculateDistance(ourPixelCoordsClickedPoint, point as Point),
+        );
+        const closestDistance = Math.min(...distances);
+        onGuess({
+          correct: false,
+          distance: closestDistance,
+          guessedPosition: e.latlng,
+          correctPolygon: correctPolygonData,
+        });
+      }
 
       map.panTo(
         map.unproject(
@@ -137,7 +142,7 @@ function RunescapeMap({ gameState, onGuess }: RunescapeMapProps) {
       {gameState.status === GameStatus.AnswerRevealed && (
         <>
           <Marker
-            position={guessedPosition!}
+            position={gameState.guessedPosition!}
             icon={
               new Icon({
                 iconUrl: markerIconPng,
@@ -146,8 +151,9 @@ function RunescapeMap({ gameState, onGuess }: RunescapeMapProps) {
               })
             }
           />
+
           <GeoJSON
-            data={correctPolygon!}
+            data={gameState.correctPolygon!}
             style={() => ({
               color: "#0d6efd", // Outline color
               fillColor: "#0d6efd", // Fill color

@@ -4,15 +4,15 @@ import "./style/leaflet.css";
 import { useState } from "react";
 import MainMenu from "./components/MainMenu";
 import { match } from "ts-pattern";
-import DailyChallenge from "./components/DailyChallenge";
+import DailyJingle from "./components/DailyJingle";
 import useSWR from "swr";
 import { getCurrentDateInBritain } from "./utils/date-utils";
-import { getDailyChallenge } from "./db/db";
+import { getDailyChallenge } from "./data/db";
+import { keys } from "./data/localstorage";
 
 enum Screen {
   MainMenu = "main-menu",
-  DailyChallenge = "daily-challenge",
-  Result = "result",
+  DailyJingle = "daily-jingle",
   Practice = "practice",
 }
 
@@ -35,20 +35,24 @@ function App() {
         .with(Screen.MainMenu, () => (
           <MainMenu
             dailyChallenge={dailyChallenge}
-            onDailyChallengeClick={() => setScreen(Screen.DailyChallenge)}
+            onDailyJingleClick={() => {
+              if (
+                localStorage.getItem(keys.dailyComplete) ===
+                getCurrentDateInBritain()
+              ) {
+                setScreen(Screen.DailyJingle);
+              } else {
+                setScreen(Screen.DailyJingle);
+              }
+            }}
             onPracticeClick={() => setScreen(Screen.Practice)}
           />
         ))
         .with(
-          Screen.DailyChallenge,
+          Screen.DailyJingle,
           () =>
-            dailyChallenge && (
-              <DailyChallenge dailyChallenge={dailyChallenge} />
-            ),
+            dailyChallenge && <DailyJingle dailyChallenge={dailyChallenge} />,
         )
-        .with(Screen.Result, () => (
-          <div className="App background-blur">Result</div>
-        ))
         .with(Screen.Practice, () => (
           <div className="App background-blur">Practice</div>
         ))

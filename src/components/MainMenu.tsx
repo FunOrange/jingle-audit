@@ -1,25 +1,25 @@
 import { FaDiscord, FaDonate, FaGithub } from "react-icons/fa";
-import { mediaHostUrl } from "../data/hostUrl";
-import { getStatistics } from "../db/db";
+import { getStatistics } from "../data/db";
 import "../style/footer.css";
 import "../style/mainMenu.css";
 import NextDailyCountdown from "./NextDailyCountdown";
 import { getCurrentDateInBritain, getNextUtc4AM } from "../utils/date-utils";
 import useSWR from "swr";
 import { DailyChallenge } from "../types/jingle";
+import { keys } from "../data/localstorage";
 
 interface MainMenuProps {
   dailyChallenge: DailyChallenge | undefined;
-  onDailyChallengeClick: () => void;
+  onDailyJingleClick: () => void;
   onPracticeClick: () => void;
 }
 export default function MainMenu({
   dailyChallenge,
-  onDailyChallengeClick,
+  onDailyJingleClick,
   onPracticeClick,
 }: MainMenuProps) {
   const dailyCompleted =
-    localStorage.getItem("dailyComplete") === getCurrentDateInBritain();
+    localStorage.getItem(keys.dailyComplete) === getCurrentDateInBritain();
 
   const { data: statistics } = useSWR(["statistics", "global"], getStatistics, {
     refreshInterval: 2000,
@@ -29,7 +29,7 @@ export default function MainMenu({
     <div className="main-menu-container">
       <img
         className="main-menu-image"
-        src={`${mediaHostUrl}/Jingle.png`}
+        src="https://mahloola.com/Jingle.png"
         alt="Jingle"
       />
 
@@ -39,7 +39,7 @@ export default function MainMenu({
       <h1
         className="main-menu-option"
         style={{ left: "17vw", top: "70%" }}
-        onClick={onDailyChallengeClick}
+        onClick={onDailyJingleClick}
       >
         Daily Jingle
         {dailyCompleted && <NextDailyCountdown end={getNextUtc4AM()} />}

@@ -1,6 +1,10 @@
+import { GeoJsonObject } from "geojson";
+import L from "leaflet";
+
 export enum GameStatus {
   Guessing = "guessing",
   AnswerRevealed = "answer-revealed",
+  GameOver = "game-over",
 }
 
 export interface GameState {
@@ -10,6 +14,9 @@ export interface GameState {
   scores: number[];
   startTime: number;
   timeTaken: string | null;
+
+  guessedPosition: L.LatLng | null;
+  correctPolygon: GeoJsonObject | null;
 }
 
 export interface DailyChallenge {

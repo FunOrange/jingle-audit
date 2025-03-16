@@ -6,7 +6,7 @@ interface ResultMessageProps {
   gameState: GameState;
 }
 
-export default function ResultMessage({ gameState }: ResultMessageProps) {
+export default function RoundResult({ gameState }: ResultMessageProps) {
   const resultVisible = gameState.status === GameStatus.AnswerRevealed;
   const [guessResult, setGuessResult] = useState<number>(0);
   const [correctSong, setCorrectSong] = useState<string>(gameState.songs[0]);
