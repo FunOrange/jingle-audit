@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { DailyChallenge, GameStatus } from "../types/jingle";
+import { DailyChallenge, GameState, GameStatus } from "../types/jingle";
 import RunescapeMap from "./RunescapeMap";
 import {
   incrementDailyChallenge,
@@ -26,16 +26,25 @@ interface DailyJingleProps {
 }
 export default function DailyJingle({ dailyChallenge }: DailyJingleProps) {
   const jingleNumber = getJingleNumber(dailyChallenge);
-  const jingle = useGameLogic(dailyChallenge);
-  const gameState = jingle.gameState;
-
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const playSong = (songName: string) => {
-    const src = `https://mahloola.com/${songName.trim().replace(/ /g, "_")}.mp3`;
-    audioRef.current!.src = src;
-    audioRef.current!.load();
-    audioRef.current!.play();
+  const loadGameState = (): GameState | null => {
+    const jingleNumber = getJingleNumber(dailyChallenge);
+    const gameStateJson = localStorage.getItem(keys.gameState(jingleNumber));
+    try {
+      const gameState = JSON.parse(gameStateJson ?? "null");
+      return gameState;
+    } catch (e) {
+      console.error("Failed to parse saved game state: " + gameState);
+      return null;
+    }
   };
+  const saveGameState = (gameState: GameState) => {
+    localStorage.setItem(
+      keys.gameState(jingleNumber),
+      JSON.stringify(gameState),
+    );
+  };
+  const jingle = useGameLogic(dailyChallenge, loadGameState());
+  const gameState = jingle.gameState;
 
   const guess = (guess: Guess) => {
     const gameState = jingle.guess(guess);
@@ -46,19 +55,28 @@ export default function DailyJingle({ dailyChallenge }: DailyJingleProps) {
     if (guess.correct) incrementSongSuccessCount(currentSong);
     else incrementSongFailureCount(currentSong);
 
-    localStorage.setItem(
-      keys.gameState(jingleNumber),
-      JSON.stringify(gameState),
-    );
+    saveGameState(gameState);
     if (gameState.round === gameState.songs.length) {
       localStorage.setItem(keys.dailyComplete, getCurrentDateInBritain());
       incrementDailyChallenge(sum(gameState.scores));
     }
   };
 
+  const endGame = () => {
+    const gameState = jingle.endGame();
+    saveGameState(gameState);
+  };
+
+  const audioRef = useRef<HTMLAudioElement>(null);
   const nextSong = () => {
     jingle.nextSong();
-    playSong(gameState.songs[gameState.round + 1]);
+
+    // play next song
+    const songName = gameState.songs[gameState.round + 1];
+    const src = `https://mahloola.com/${songName.trim().replace(/ /g, "_")}.mp3`;
+    audioRef.current!.src = src;
+    audioRef.current!.load();
+    audioRef.current!.play();
   };
 
   const button = (label: string, onClick?: () => any) => (
@@ -94,7 +112,7 @@ export default function DailyJingle({ dailyChallenge }: DailyJingleProps) {
                 if (gameState.round < gameState.songs.length - 1) {
                   return button("Next Song", nextSong);
                 } else {
-                  return button("End Game", jingle.endGame);
+                  return button("End Game", endGame);
                 }
               })
               .with(GameStatus.GameOver, () =>

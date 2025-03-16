@@ -13,20 +13,12 @@ export interface Guess {
   correctPolygon: GeoJsonObject;
 }
 
-export default function useGameLogic(dailyChallenge: DailyChallenge) {
-  const loadGameState = (): GameState | null => {
-    const jingleNumber = getJingleNumber(dailyChallenge);
-    const gameStateJson = localStorage.getItem(keys.gameState(jingleNumber));
-    try {
-      const gameState = JSON.parse(gameStateJson ?? "null");
-      return gameState;
-    } catch (e) {
-      console.error("Failed to parse saved game state: " + gameState);
-      return null;
-    }
-  };
+export default function useGameLogic(
+  dailyChallenge: DailyChallenge,
+  initialGameState?: GameState | null,
+) {
   const [gameState, setGameState] = useState<GameState>(
-    loadGameState() ?? {
+    initialGameState ?? {
       status: GameStatus.Guessing,
       round: 0,
       songs: dailyChallenge.songs,
@@ -56,6 +48,7 @@ export default function useGameLogic(dailyChallenge: DailyChallenge) {
         ...newGameState,
         timeTaken: calculateTimeDifference(gameState.startTime, Date.now()),
       };
+      console.log("timeTaken", newGameState.timeTaken);
       setGameState(newGameState);
     }
 
@@ -80,10 +73,12 @@ export default function useGameLogic(dailyChallenge: DailyChallenge) {
       throw new Error("Game is not over yet");
     }
 
-    setGameState((prev) => ({
-      ...prev,
+    const newGameState = {
+      ...gameState,
       status: GameStatus.GameOver,
-    }));
+    };
+    setGameState(newGameState);
+    return newGameState;
   };
 
   return { gameState, guess, nextSong, endGame };
