@@ -33,7 +33,7 @@ export const calculateDistance = (
 export const getCenterOfPolygon = (points: Point[]) => {
   const xSum = points.reduce((acc, [x, _]) => acc + x, 0);
   const ySum = points.reduce((acc, [_, y]) => acc + y, 0);
-  return [xSum / points.length, ySum / points.length];
+  return [xSum / points.length, ySum / points.length] as Point;
 };
 
 export const getDistanceToPolygon = (

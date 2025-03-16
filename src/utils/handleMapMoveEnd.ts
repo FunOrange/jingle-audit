@@ -4,13 +4,7 @@ import { MutableRefObject } from "react";
 export const handleMapMoveEnd =
   (mapRef: MutableRefObject<L.Map | null>, outerBounds: L.LatLngBounds) =>
   () => {
-    const map = mapRef.current;
-
-    if (map) {
-      const currentBounds = map.getBounds();
-
-      if (!outerBounds.contains(currentBounds)) {
-        map.fitBounds(outerBounds);
-      }
+    if (!outerBounds.contains(mapRef.current!.getBounds())) {
+      mapRef.current!.fitBounds(outerBounds);
     }
   };

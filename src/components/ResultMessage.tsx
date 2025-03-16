@@ -1,10 +1,22 @@
+import { useEffect, useState } from "react";
 import "../style/resultMessage.css";
+import { GameState, GameStatus } from "../types/jingle";
 
-export default function ResultMessage({
-  resultVisible,
-  guessResult,
-  currentSongUi,
-}) {
+interface ResultMessageProps {
+  gameState: GameState;
+}
+
+export default function ResultMessage({ gameState }: ResultMessageProps) {
+  const resultVisible = gameState.status === GameStatus.AnswerRevealed;
+  const [guessResult, setGuessResult] = useState<number>(0);
+  const [correctSong, setCorrectSong] = useState<string>(gameState.songs[0]);
+  useEffect(() => {
+    if (gameState.status === GameStatus.AnswerRevealed) {
+      setCorrectSong(gameState.songs[gameState.round]);
+      setGuessResult(gameState.scores[gameState.round]);
+    }
+  }, [gameState]);
+
   return (
     <div
       className="alert result-message"
@@ -22,7 +34,7 @@ export default function ResultMessage({
       }}
     >
       +{guessResult}
-      <div style={{ fontSize: "70%" }}>{currentSongUi}</div>
+      <div style={{ fontSize: "70%" }}>{correctSong}</div>
     </div>
   );
 }

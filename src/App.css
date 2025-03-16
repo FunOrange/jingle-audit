@@ -10,7 +10,21 @@
   height: 100vh;
   display: flex;
   justify-content: center;
+  align-items: center;
+  position: absolute;
+}
+
+.App-inner {
+  width: 100vw;
+  height: 100dvh;
+  display: flex;
+  justify-content: center;
   align-items: flex-end;
+  position: absolute;
+  padding-bottom: 5vh;
+}
+
+.absolute {
   position: absolute;
 }
 

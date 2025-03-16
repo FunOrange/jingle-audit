@@ -3,6 +3,11 @@ import "./App.css";
 import "./style/leaflet.css";
 import { useState } from "react";
 import MainMenu from "./components/MainMenu";
+import { match } from "ts-pattern";
+import DailyChallenge from "./components/DailyChallenge";
+import useSWR from "swr";
+import getCurrentDateInBritain from "./utils/date-utils";
+import { getDailyChallenge } from "./db/db";
 
 enum Screen {
   MainMenu = "main-menu",
@@ -12,29 +17,44 @@ enum Screen {
 }
 
 function App() {
+  const { data: dailyChallenge } = useSWR(
+    ["dailyChallenges", getCurrentDateInBritain()],
+    getDailyChallenge,
+  );
   const [screen, setScreen] = useState<Screen>(Screen.MainMenu);
-  if (screen === Screen.MainMenu) {
-    return (
-      <div
-        className="App backdrop-blur"
-        style={{
-          backgroundImage: `url(/assets/background.jpg)`,
-          backgroundSize: "cover",
-        }}
-      >
-        <MainMenu
-          onDailyChallengeClick={() => setScreen(Screen.DailyChallenge)}
-          onPracticeClick={() => setScreen(Screen.Practice)}
-        />
-      </div>
-    );
-  } else if (screen === Screen.DailyChallenge) {
-    return <div className="App background-blur">Daily Challenge</div>;
-  } else if (screen === Screen.Result) {
-    return <div className="App background-blur">Result</div>;
-  } else if (screen === Screen.Practice) {
-    return <div className="App background-blur">Practice</div>;
-  }
+
+  return (
+    <div
+      className="App"
+      style={{
+        backgroundImage: `url(/assets/background.jpg)`,
+        backgroundSize: "cover",
+      }}
+    >
+      {match(screen)
+        .with(Screen.MainMenu, () => (
+          <MainMenu
+            dailyChallenge={dailyChallenge}
+            onDailyChallengeClick={() => setScreen(Screen.DailyChallenge)}
+            onPracticeClick={() => setScreen(Screen.Practice)}
+          />
+        ))
+        .with(
+          Screen.DailyChallenge,
+          () =>
+            dailyChallenge && (
+              <DailyChallenge dailyChallenge={dailyChallenge} />
+            ),
+        )
+        .with(Screen.Result, () => (
+          <div className="App background-blur">Result</div>
+        ))
+        .with(Screen.Practice, () => (
+          <div className="App background-blur">Practice</div>
+        ))
+        .exhaustive()}
+    </div>
+  );
 }
 
 export default App;

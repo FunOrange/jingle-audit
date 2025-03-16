@@ -1,28 +1,25 @@
 import { FaDiscord, FaDonate, FaGithub } from "react-icons/fa";
 import { mediaHostUrl } from "../data/hostUrl";
-import { getDailyChallenge, getStatistics } from "../db/db";
+import { getStatistics } from "../db/db";
 import "../style/footer.css";
 import "../style/mainMenu.css";
 import NextDailyCountdown from "./NextDailyCountdown";
-import getCurrentDateInBritain from "../utils/getCurrentDateinBritain";
-import { getNextUtc4AM } from "../utils/date-utils";
+import getCurrentDateInBritain, { getNextUtc4AM } from "../utils/date-utils";
 import useSWR from "swr";
+import { DailyChallenge } from "../types/jingle";
 
 interface MainMenuProps {
+  dailyChallenge: DailyChallenge | undefined;
   onDailyChallengeClick: () => void;
   onPracticeClick: () => void;
 }
 export default function MainMenu({
+  dailyChallenge,
   onDailyChallengeClick,
   onPracticeClick,
 }: MainMenuProps) {
   const dailyCompleted =
-    localStorage?.dailyComplete === getCurrentDateInBritain();
-
-  const { data: dailyChallenge } = useSWR(
-    ["dailyChallenges", getCurrentDateInBritain()],
-    getDailyChallenge,
-  );
+    localStorage.getItem("dailyComplete") === getCurrentDateInBritain();
 
   const { data: statistics } = useSWR(["statistics", "global"], getStatistics, {
     refreshInterval: 2000,
@@ -69,6 +66,7 @@ export default function MainMenu({
           </div>
         </div>
       </div>
+
       <div className="main-menu-icon-container">
         <a
           className="main-menu-icon"

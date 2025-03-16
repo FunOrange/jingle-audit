@@ -10,7 +10,8 @@ import {
   setDoc,
   where,
 } from "firebase/firestore/lite";
-import getCurrentDateInBritain from "../utils/getCurrentDateinBritain";
+import getCurrentDateInBritain from "../utils/date-utils";
+import { DailyChallenge } from "../types/jingle";
 
 // Initialize Firebase
 if (!import.meta.env.VITE_FIRESTORE_KEY) {
@@ -37,7 +38,7 @@ async function getDailyChallenge() {
   const formattedDate = getCurrentDateInBritain();
   const dailyChallengesRef = doc(db, "dailyChallenges", formattedDate);
   const dailyChallengesSnap = await getDoc(dailyChallengesRef);
-  return dailyChallengesSnap.data();
+  return dailyChallengesSnap.data() as DailyChallenge;
 }
 
 async function getDailyChallengePercentileAndIncrement(result: number) {
@@ -195,8 +196,6 @@ function calculateSuccessRate(
   } else {
     successRate = successCount / (successCount + failureCount + 1);
   }
-
-  console.log(`Success Rate average: ${successRate}`);
   return successRate ?? null;
 }
 

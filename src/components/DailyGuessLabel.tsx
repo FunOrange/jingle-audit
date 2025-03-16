@@ -1,7 +1,7 @@
 import { mediaHostUrl } from "../data/hostUrl";
 
 interface DailyGuessLabelProps {
-  number: number;
+  number?: number;
   opacity?: number;
 }
 const DailyGuessLabel = ({ number, opacity }: DailyGuessLabelProps) => {
@@ -18,9 +18,10 @@ const DailyGuessLabel = ({ number, opacity }: DailyGuessLabelProps) => {
           fontStyle: "italic",
           fontFamily: "Runescape UF",
           color: "#edfd07",
+          pointerEvents: "none",
         }}
       >
-        {number}
+        {number || "-"}
       </div>
     </div>
   );
