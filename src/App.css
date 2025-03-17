@@ -1,6 +1,6 @@
 @font-face {
   font-family: "Runescape UF";
-  src: url("../public/fonts/runescape.ttf");
+  src: url("/fonts/runescape.ttf");
 }
 
 .App {
@@ -40,14 +40,4 @@
   width: 250px;
   border-radius: 30px !important;
   font-style: italic;
-}
-
-.blur {
-  filter: blur(40px);
-  /* Adjust the blur strength as needed */
-  border: 0px solid transparent;
-}
-
-.background-blur {
-  backdrop-filter: blur(40px);
 }
