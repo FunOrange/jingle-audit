@@ -18,8 +18,8 @@ enum Screen {
 
 function App() {
   const { data: dailyChallenge } = useSWR(
-    ["dailyChallenges", getCurrentDateInBritain()],
-    getDailyChallenge,
+    `/api/daily-challenges/${getCurrentDateInBritain()}`,
+    () => getDailyChallenge(getCurrentDateInBritain()),
   );
   const [screen, setScreen] = useState<Screen>(Screen.MainMenu);
 

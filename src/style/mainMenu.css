@@ -4,8 +4,7 @@
   left: 50%;
   transform: translate(-50%, -50%);
   width: 80vw;
-  z-index: 3 !important;
-  /* Ensure the button is above the blurred map */
+  z-index: 3 !important; /* Ensure the button is above the blurred map */
   height: 70vh;
   max-width: 70vw;
   display: flex;
@@ -16,8 +15,6 @@
 
 .main-menu-image {
   width: 70vw;
-  max-height: 100vh;
-  object-fit: contain;
 }
 
 .main-menu-text {

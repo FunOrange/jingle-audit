@@ -21,7 +21,7 @@ export default function MainMenu({
   const dailyCompleted =
     localStorage.getItem(keys.dailyComplete) === getCurrentDateInBritain();
 
-  const { data: statistics } = useSWR(["statistics", "global"], getStatistics, {
+  const { data: statistics } = useSWR("/api/statistics", getStatistics, {
     refreshInterval: 2000,
   });
 

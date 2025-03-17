@@ -19,6 +19,9 @@ import useGameLogic, { Guess } from "../hooks/useGameLogic";
 import GameOver from "./GameOver";
 import { keys } from "../data/localstorage";
 import { copyResultsToClipboard, getJingleNumber } from "../utils/jingle-utils";
+import SettingsButton from "./SettingsButton";
+import NewsButton from "./NewsButton";
+import StatsButton from "./StatsButton";
 
 interface DailyJingleProps {
   dailyChallenge: DailyChallenge;
@@ -55,7 +58,7 @@ export default function DailyJingle({ dailyChallenge }: DailyJingleProps) {
     else incrementSongFailureCount(currentSong);
 
     saveGameState(gameState);
-    if (gameState.round === gameState.songs.length) {
+    if (gameState.round === gameState.songs.length - 1) {
       // submit daily challenge
       localStorage.setItem(keys.dailyComplete, getCurrentDateInBritain());
       postDailyChallengeResult(sum(gameState.scores));
@@ -95,6 +98,9 @@ export default function DailyJingle({ dailyChallenge }: DailyJingleProps) {
       <div className="App-inner">
         <div className="ui-box">
           <HomeButton />
+          <SettingsButton />
+          <NewsButton />
+          <StatsButton />
           <div className="below-map">
             <div style={{ display: "flex", gap: "2px" }}>
               <DailyGuessLabel number={gameState.scores[0]} />

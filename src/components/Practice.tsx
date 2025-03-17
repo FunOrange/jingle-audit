@@ -13,6 +13,9 @@ import {
   incrementSongFailureCount,
   incrementSongSuccessCount,
 } from "../data/jingle-api";
+import NewsButton from "./NewsButton";
+import SettingsButton from "./SettingsButton";
+import StatsButton from "./StatsButton";
 
 export default function Practice() {
   const [gameState, setGameState] = useState<GameState>({
@@ -79,6 +82,9 @@ export default function Practice() {
       <div className="App-inner">
         <div className="ui-box">
           <HomeButton />
+          <SettingsButton />
+          <NewsButton />
+          <StatsButton />
           <div className="below-map">
             {match(gameState.status)
               .with(GameStatus.Guessing, () =>
