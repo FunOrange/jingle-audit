@@ -25,3 +25,14 @@ export interface DailyChallenge {
   submissions: number;
   results: number[];
 }
+
+export interface Statistics {
+  guesses: number;
+}
+
+export interface Song {
+  name: string;
+  successRate: number;
+  successCount: number;
+  failureCount: number;
+}

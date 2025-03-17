@@ -7,12 +7,12 @@ import "../style/uiBox.css";
 import { match } from "ts-pattern";
 import RoundResult from "./RoundResult";
 import { Guess } from "../hooks/useGameLogic";
-import { getRandomSong } from "../utils/getSong";
+import { getRandomSong } from "../utils/getRandomSong";
 import {
   incrementGlobalGuessCounter,
   incrementSongFailureCount,
   incrementSongSuccessCount,
-} from "../data/db";
+} from "../data/jingle-api";
 
 export default function Practice() {
   const [gameState, setGameState] = useState<GameState>({

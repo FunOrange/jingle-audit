@@ -2,11 +2,11 @@ import { useRef } from "react";
 import { DailyChallenge, GameState, GameStatus } from "../types/jingle";
 import RunescapeMap from "./RunescapeMap";
 import {
-  incrementDailyChallenge,
   incrementGlobalGuessCounter,
   incrementSongFailureCount,
   incrementSongSuccessCount,
-} from "../data/db";
+  postDailyChallengeResult,
+} from "../data/jingle-api";
 import { getCurrentDateInBritain } from "../utils/date-utils";
 import { sum } from "ramda";
 import HomeButton from "./HomeButton";
@@ -16,10 +16,9 @@ import "../style/uiBox.css";
 import { match } from "ts-pattern";
 import RoundResult from "./RoundResult";
 import useGameLogic, { Guess } from "../hooks/useGameLogic";
-import { copyResultsToClipboard } from "../utils/copyResultsToClipboard";
 import GameOver from "./GameOver";
-import getJingleNumber from "../utils/getJingleNumber";
 import { keys } from "../data/localstorage";
+import { copyResultsToClipboard, getJingleNumber } from "../utils/jingle-utils";
 
 interface DailyJingleProps {
   dailyChallenge: DailyChallenge;
@@ -57,8 +56,9 @@ export default function DailyJingle({ dailyChallenge }: DailyJingleProps) {
 
     saveGameState(gameState);
     if (gameState.round === gameState.songs.length) {
+      // submit daily challenge
       localStorage.setItem(keys.dailyComplete, getCurrentDateInBritain());
-      incrementDailyChallenge(sum(gameState.scores));
+      postDailyChallengeResult(sum(gameState.scores));
     }
   };
 

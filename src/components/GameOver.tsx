@@ -1,12 +1,14 @@
 import { sum } from "ramda";
 import "../style/resultScreen.css";
-import { copyResultsToClipboard } from "../utils/copyResultsToClipboard";
 import { getNextUtc4AM } from "../utils/date-utils";
 import { isMobile } from "../utils/isMobile";
 import NextDailyCountdown from "./NextDailyCountdown";
 import { DailyChallenge, GameState } from "../types/jingle";
-import { calculateDailyChallengePercentile } from "../data/db";
-import getJingleNumber from "../utils/getJingleNumber";
+import {
+  calculateDailyChallengePercentile,
+  copyResultsToClipboard,
+  getJingleNumber,
+} from "../utils/jingle-utils";
 
 interface GameOverProps {
   gameState: GameState;

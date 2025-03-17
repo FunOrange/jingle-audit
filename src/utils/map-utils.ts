@@ -1,6 +1,12 @@
-import * as GeoJSON from "geojson";
+import { Feature, Position, Polygon } from "geojson";
 import { decodeHTML } from "./string-utils";
-import { Line, Point, Polygon } from "../types/geometry";
+import { Line, Point } from "../types/geometry";
+
+const scaleFactor = 3;
+// Ours refers to the pixel coordinates of the map grid we're using
+// Theirs refers to the pixel coordinates taken from osrs wiki music info GeoJSON
+export const toOurPixelCoordinates = ([x, y]: Position) =>
+  [x * scaleFactor - 3108, -(y * scaleFactor) + 12450] as Point;
 
 export const closePolygon = (coordinates: number[][]) => {
   const repairedPolygon = [...coordinates];
@@ -13,13 +19,12 @@ export const closePolygon = (coordinates: number[][]) => {
   return repairedPolygon;
 };
 
-export const featureMatchesSong =
-  (songName: string) => (feature: GeoJSON.Feature) => {
-    const featureSongName = decodeHTML(
-      feature.properties?.title.match(/>(.*?)</)[1],
-    );
-    return featureSongName === songName;
-  };
+export const featureMatchesSong = (songName: string) => (feature: Feature) => {
+  const featureSongName = decodeHTML(
+    feature.properties?.title.match(/>(.*?)</)[1],
+  );
+  return featureSongName === songName;
+};
 
 export const calculateDistance = (
   point1: [number, number],
@@ -38,7 +43,7 @@ export const getCenterOfPolygon = (points: Point[]) => {
 
 export const getDistanceToPolygon = (
   point: [number, number],
-  polygon: Polygon,
+  polygon: Point[],
 ) => {
   const polygonLines = polygon.map(
     (point, i) => [point, polygon[(i + 1) % polygon.length]] as Line,
@@ -79,3 +84,11 @@ export const getDistanceToLine = (point: [number, number], line: Line) => {
 
   return Math.sqrt(dx * dx + dy * dy);
 };
+
+export const isFeatureVisibleOnMap = (feature: Feature<Polygon>) =>
+  feature.geometry.coordinates.some((polygon) =>
+    polygon.every((point) => {
+      const [, y] = toOurPixelCoordinates(point);
+      return y > 0;
+    }),
+  );

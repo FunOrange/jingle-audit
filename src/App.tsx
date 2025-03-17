@@ -7,7 +7,7 @@ import { match } from "ts-pattern";
 import DailyJingle from "./components/DailyJingle";
 import useSWR from "swr";
 import { getCurrentDateInBritain } from "./utils/date-utils";
-import { getDailyChallenge } from "./data/db";
+import { getDailyChallenge } from "./data/jingle-api";
 import Practice from "./components/Practice";
 
 enum Screen {

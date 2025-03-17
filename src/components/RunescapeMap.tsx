@@ -11,8 +11,8 @@ import {
   closePolygon,
   featureMatchesSong,
   getCenterOfPolygon,
-} from "../utils/clickHandler-utils";
-import { toOurPixelCoordinates } from "../utils/coordinate-utils";
+  toOurPixelCoordinates,
+} from "../utils/map-utils";
 import { GameState, GameStatus } from "../types/jingle";
 import { Point } from "../types/geometry";
 import { GeoJsonObject } from "geojson";
